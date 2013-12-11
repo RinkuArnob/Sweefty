@@ -1,0 +1,265 @@
+/*===========================================================================*/
+/*                               Responsive Grid                             */
+/*===========================================================================*/
+.row {
+    width: 100%;
+    padding:0;
+    margin:0;
+}
+
+.row .column {
+    margin:0;
+    float: left;
+}
+
+.grid_1,.grid_2, .grid_3, .grid_4, .grid_5, .grid_6, .grid_7, .grid_8,
+.grid_9, .grid_10,.grid_11,.grid_12,.grid_13,.grid_14,.grid_15,.grid_16 {
+    float:left;
+    margin:0;
+}
+
+.row .row {
+    width:100%;
+    margin:0;
+    overflow:hidden;
+    float:left;
+}
+
+.row .center {
+    float:none;
+    margin:0 auto;
+    /*padding-right:4%;*/
+}
+
+/*===========================================================================*/
+/*                                12 Grid system                             */
+/*===========================================================================*/
+.grid_1 { width: 8.33333%; }
+.grid_2 { width: 16.66667%; }
+.grid_3 { width: 25%; }
+.grid_4 { width: 33.33333%; }
+.grid_5 { width: 41.66667%; }
+.grid_6 { width: 49.99999%; }
+.grid_7 { width: 58.33333%; }
+.grid_8 { width: 66.66667%; }
+.grid_9 { width: 75%; }
+.grid_10 { width: 83.33333%; }
+.grid_11 { width: 91.66667%; }
+.grid_12 { width: 100%; }
+
+.push_1 { margin-left:8.33333% !important; }
+.push_2 { margin-left:16.66667% !important; }
+.push_3 { margin-left:25% !important; }
+.push_4 { margin-left:33.33333% !important; }
+.push_5 { margin-left:41.66667% !important; }
+.push_6 { margin-left:49.99999% !important; }
+.push_7 { margin-left:58.33333% !important; }
+.push_8 { margin-left:66.66667% !important; }
+.push_9 { margin-left:75% !important; }
+.push_10 { margin-left:83.33333% !important; }
+.push_11 { margin-left:91.66667% !important; }
+.push_12 { margin-left:100% !important; }
+
+/*===========================================================================*/
+/*                                16 Grid system                             */
+/*===========================================================================*/
+.g16 .grid_1 { width: 6.25%; }
+.g16 .grid_2 { width: 12.5%; }
+.g16 .grid_3 { width: 18.75%; }
+.g16 .grid_4 { width: 25%; }
+.g16 .grid_5 { width: 31.25%; }
+.g16 .grid_6 { width: 37.5%; }
+.g16 .grid_7 { width: 43.75%; }
+.g16 .grid_8 { width: 50%; }
+.g16 .grid_9 { width: 56.25%; }
+.g16 .grid_10 { width: 62.5%; }
+.g16 .grid_11 { width: 68.75%; }
+.g16 .grid_12 { width:75%; }
+.g16 .grid_13 { width: 81.25%; }
+.g16 .grid_14 { width: 87.5%; }
+.g16 .grid_15 { width: 93.75%; }
+.g16 .grid_16 { width: 100%; }
+
+.g16 .push_1 { margin-left: 6.25% !important; }
+.g16 .push_2 { margin-left: 12.5% !important; }
+.g16 .push_3 { margin-left: 18.75% !important; }
+.g16 .push_4 { margin-left: 25% !important; }
+.g16 .push_5 { margin-left: 31.25% !important; }
+.g16 .push_6 { margin-left: 37.5% !important; }
+.g16 .push_7 { margin-left: 43.75% !important; }
+.g16 .push_8 { margin-left: 50% !important; }
+.g16 .push_9 { margin-left: 56.25% !important; }
+.g16 .push_10 { margin-left: 62.5% !important; }
+.g16 .push_11 { margin-left: 68.75% !important; }
+.g16 .push_12 { margin-left:75% !important; }
+.g16 .push_13 { margin-left: 81.25% !important; }
+.g16 .push_14 { margin-left: 88.5% !important; }
+.g16 .push_15 { margin-left: 93.75% !important; }
+.g16 .push_16 { margin-left: 100% !important; }
+
+/*===========================================================================*/
+/*                                  MEDIAQUERIES                             */
+/*===========================================================================*/
+/*                              from biggest to smallest                     */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/*                                 Screens <= 960px                          */
+/*===========================================================================*/
+#SW_hidden_element {
+    width:1px;
+}
+
+.show-phone  { display:none !important; }
+.show-tablet { display:none !important; }
+.show-screen { display:inherit; }
+.hide-phone  { display:inherit !important; }
+.hide-tablet { display:inherit !important; }
+.hide-screen { display:none !important; }
+
+/*===========================================================================*/
+/*                                  Screens > 960px                          */
+/*===========================================================================*/
+@media only screen and (min-width:1200px) {
+    .show-phone  { display:none !important; }
+    .show-tablet { display:none !important; }
+    .show-screen { display:inherit; }
+    .hide-phone  { display:inherit !important; }
+    .hide-tablet { display:inherit !important; }
+    .hide-screen { display:none !important; }
+    
+    #SW_hidden_element {
+        width:2px;
+    }
+}
+
+/*===========================================================================*/
+/*                                  Tablets < 959px                          */
+/*===========================================================================*/
+/***** Tablet (Smaller than 959px) *****/
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+    .show-phone  { display:none !important; }
+    .show-tablet { display:inherit !important; }
+    .show-screen { display:none !important; }
+    .hide-phone  { display:inherit !important; }
+    .hide-tablet { display:none !important; }
+    .hide-screen { display:inherit !important; }
+    
+    #SW_hidden_element {
+        width:3px;
+    }
+}
+
+/*===========================================================================*/
+/*          Phone (landscape 420px)                                          */
+/*===========================================================================*/
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+    .row {
+        width: 100%;
+        margin : 0;
+        display:inline;
+    }
+    
+    .row .column {
+        width:50%;
+    }
+    
+    .row .push_1,
+    .row .push_2,
+    .row .push_3,
+    .row .push_4,
+    .row .push_5,
+    .row .push_6,
+    .row .push_7,
+    .row .push_8,
+    .row .push_9,
+    .row .push_10,
+    .row .push_11,
+    .row .push_12,
+    .row .push_13,
+    .row .push_14,
+    .row .push_15,
+    .row .push_16 {
+        margin-left:0 !important;
+    }
+    
+    .row .column.center {
+        padding-right:0;
+    }
+    
+    #SW_hidden_element {
+        width:4px;
+    }
+}
+
+/*===========================================================================*/
+/*                                   Phones (300px)                          */
+/*===========================================================================*/
+@media only screen and (max-width: 767px) {
+    .row {
+        width: 100%;
+        margin : 0 0;
+        display:inline;
+    }
+    
+    .row .column {
+        width:100%;
+    }
+    
+    .row.scroll {
+        display:block;
+        overflow:hidden;
+    }
+    
+    .row.scroll > .column {
+        position:relative;
+        display:none;
+    }
+    
+    .row.scroll > .column:first-child {
+        display:block;
+    }
+    
+    .row .push_1,
+    .row .push_2,
+    .row .push_3,
+    .row .push_4,
+    .row .push_5,
+    .row .push_6,
+    .row .push_7,
+    .row .push_8,
+    .row .push_9,
+    .row .push_10,
+    .row .push_11,
+    .row .push_12,
+    .row .push_13,
+    .row .push_14,
+    .row .push_15,
+    .row .push_16 {
+        margin-left:0 !important;
+    }
+    
+    .row .column.center {
+        padding-right:0;
+    }
+    
+    .show-phone  { display:inherit !important; }
+    .show-tablet { display:none !important; }
+    .show-screen { display:none !important; }
+    .hide-phone  { display:none !important; }
+    .hide-tablet { display:inherit !important; }
+    .hide-screen { display:inherit !important; }
+    
+    #SW_hidden_element {
+        width:5px;
+    }
+}
+
+.clear {
+    clear:both;
+}
+
+/* Nicolas Gallagher's micro clearfix */
+.row:before, .row:after, .clearfix:before, .clearfix:after { content:""; display:table; }
+.row:after, .clearfix:after { clear: both; }
+.row, .clearfix { zoom: 1; }

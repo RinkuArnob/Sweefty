@@ -1,7 +1,12 @@
 (function($){
     
-    var _SW_equalizeDivs = false,
-    _SW_devices = {
+	"use strict";
+	
+    var _SW_equalizeDivs	= false
+	  , _SW_cache			= {}
+	  , _SW;
+    
+    var _SW_devices = {
         1 : 'screen',
         2 : 'screen',
         3 : 'tablet',
@@ -14,25 +19,164 @@
             4 : 'Mobile Landscape',
             5 : 'Mobile Portrait'
         }
-    },_SW,
-    _SW_cache = {};
+    }
+	
+	/**
+	 * @constructor
+	 */
+	var SW = function(){
+        _SW = this;
+    };
+    
+    //set plugin triggers
+    SW.prototype.trigger = function(name,fn){
+        methods.trigger[name] = fn;
+        return fn;
+    };
+	
+    SW.prototype.on = {
+        ini : function(){
+            var id = parseInt($('#SW_hidden_element').css('width'));
+            var screenType = _SW_devices[id];
+            return screenType;
+        },
+		//Fire callback function on resize
+        resize : function(callback){
+            methods.setEvent(callback);
+        },
+		//fire on device change
+        device : function(dev,func,func2){
+            var deviceType
+			  , Runfunc1
+			  , Runfunc2;
+			
+            if (func2 && typeof func2 == 'function'){
+                Runfunc2 = func2;
+            } if (func && typeof func == 'function'){
+                Runfunc1 = func;
+                deviceType = dev;
+            } else {
+                Runfunc1 = dev;
+            }
+            
+            methods.setEvent(function(){
+                if (_SW.on.previousDevice !== _SW.on.lastDevice){
+                    if (deviceType){
+                        if (deviceType == _SW.on.lastDevice) {
+                            Runfunc1(_SW.on.lastDevice);
+                        } else if (Runfunc2 && deviceType !== _SW.on.lastDevice
+											&& _SW.on.previousDevice == deviceType) {
+                            Runfunc2(_SW.on.lastDevice);
+                        }
+                    } else {
+                        Runfunc1(_SW.on.lastDevice);
+                    }
+                }
+            });
+        },
+		
+		//Fire callback1 on spicific Device
+		//Fire callback2 on everything else
+        mobile : function(callback1,callback2){
+            _SW.on.device('mobile',callback1,callback2);
+        },
+        tablet : function(callback1,callback2){
+            _SW.on.device('tablet',callback1,callback2);
+        },
+        screen : function(callback1,callback2){
+            _SW.on.device('screen',callback1,callback2);
+        },
+        lastDevice : '',
+        previousDevice : ''
+    };
+    
+    //light weight module manager
+    var SW_SELF_URL = (function() {
+        var script_tags = document.getElementsByTagName('script');
+        var path = script_tags[script_tags.length-1].src;
+        path = path.match(/(.*\/).*\.js/);
+        return path[1];
+    })();
+    
+    var modules = {};
+    var parent_module;
+    var require = SW.prototype.require = function(id,callback){
+    	//if callback passed we expect this to be async require
+    	var async = typeof callback === 'function' ? true : false;
+    	if ($.isArray(id)){
+    	    var ret = {};
+    	    $(id).each(function(i,ix){
+				var ex = require(ix,callback);
+				ret = $.extend({}, ret, ex);
+    	    });
+    	    return ret;
+    	}
+    	
+    	//resolve id
+    	var url = SW_SELF_URL + id;
+    	if ( modules[id] && modules[id].loaded === true ){
+    	    console.log( id + ' loaded from cache');
+    	    return modules[id].exports;
+    	}
+    	
+    	modules[id] = {
+    	    id : id,
+    	    parent : parent_module,
+    	    exports : {},
+    	    loaded : false
+    	};
+    	
+    	parent_module = modules[id];
+    	window.exports = modules[id].exports;
+		
+		var loadScript = function (url, cb) {
+    	    
+			cb = async ? cb : function(){}
+			if (!async) modules[id].loaded = true;
+			
+    	    jQuery.ajax({
+				url: url,
+				dataType: 'script',
+				cache: false,
+				success: function(){
+					if (async) {
+					   modules[id].loaded = true;
+					}
+					
+					//switch require back to the parent
+					if (modules[id].parent){
+					   window.exports = modules[id].parent.exports;
+					}
+					
+					parent_module = modules[id].parent;
+					cb(modules[id].exports);
+				},
+				async: async
+    	    });
+    	}
+		
+    	loadScript(url,callback);
+    	return modules[id].exports;
+    };
+    
+    window.require = require;
     
     //resize event handler with delay response
-    var _resizeTimer;
+    var resizeTimer;
     $(window).resize(function() {
-        clearTimeout(_resizeTimer);
-        _resizeTimer = setTimeout(methods.fireOnResize, 250);
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(methods.fireOnResize, 250);
     });
-
+	
     //inatiate after document load
     $(document).ready(function() {
-        
         //initiate
         if (!_SW){
             _SW = Sweefty();
         }
         
-	//quick test if our browser support floating point margins
+		//TODO - Do We need this?
+		//quick test if our browser support floating point margins
         var div = $('<div id="SW_hidden_element" style="margin-left:50.6%"></div>');
         $('body').append(div);
         var num = parseFloat(div.css('margin-left'));
@@ -42,20 +186,10 @@
         
         div.hide();
         
-        //save containers
-        _SW_cache.containers = $('.row:first-child').parent();
-        
         //run resize event
         setTimeout(methods.fireOnResize,250);
-	
-	
-        //$('.row .column').wrapInner('<div style="margin:10px 15px; 0"></div>');
         
-        //buttons effect === FIXME - chrome flikering
-        $('.button').mouseover(function(){
-            $(this).css('opacity',.6).stop().animate({opacity:1},300);
-        });
-        
+		//TODO Change this to something unique
         //tabs
         $('.tabs').each(function(){
             var tabs = $(this);
@@ -64,15 +198,12 @@
             divs.hide();
             
             lis.each(function(i){
-                
                 var $this = $(this);
-                
                 if ($this.hasClass('active')){
                     divs.eq(i).show();
                 }
                 
                 $this.click(function(){
-                    
                     if ($(this).hasClass('active')){
                         return false;
                     }
@@ -86,26 +217,25 @@
             });
         });
         
-        
-	//nav menu fix for IE 6 & 7
+		//TODO change class name to something unique
+        //nav menu fix for IE 6 & 7
         $("ul.nav li").hover( function() {
             $(this).addClass("iehover");
         },function() {
             $(this).removeClass("iehover");
         });
-	
+		
         $('ul.nav > li').each(function(){
-            var $this = $(this);
-            var As = $this.children('a');
+            var $this	= $(this)
+			  , As		= $this.children('a');
             
             if (As.next('ul').length){
                 As.append('<span class="dir"></span>');
-            } 
+            }
         });
-	
         
         //delay processing of data-trigger attributes
-	//making sure all elements in place
+        //making sure all elements in place
         setTimeout(function(){
             $('[data-trigger]').each(function(){
                 var $this = $(this);
@@ -115,19 +245,12 @@
                 });
             });
         },100);
-        
-        
-        
     });
-    
     
     //internal methods
     var methods = {
         parse : function(ele,options){
             var $this = this;
-	    //var options = ele.data('trigger');
-            
-            
             if (typeof options == 'object'){
                 
             } else {
@@ -149,19 +272,16 @@
                     }
                 }
                 
-                if ($this.trigger[action]){
+                if (typeof $this.trigger[action] === 'function'){
                     $this.trigger[action](ele,obj);
                 }
             }
         },
         
         trigger : {
-            
-	    //default - predefined triggers
-	    //other triggers can be found in plugins folder as seperate plugins
-	    
+            //default - predefined triggers
+            //other triggers can be found in plugins folder as seperate plugins
             toggle : function(ele,obj){
-                
                 var target = obj.toggle;
                 var on = obj.on || 'click';
                 var type = obj.type || 'fadeToggle';
@@ -188,14 +308,11 @@
             menu : function(ele,obj) {
                 
                 var type = obj.menu;
-                
                 var getList = function(element,count){
-                    
                     var counter;
                     !count ? counter = 0 : counter = count;
                     
                     var value = '';
-                    
                     var style = '';
                     var padding = '';
                     var indent = '';
@@ -204,20 +321,14 @@
                     }
                     
                     element.children('li').each(function(){
-                        var $this = $(this);
-                        
-                        var A = $this.children('a');
-                        var text = A.text();
-                        var link = A.attr('href');
+                        var $this	= $(this)
+						  , A		= $this.children('a')
+						  , text	= A.text()
+						  , link	= A.attr('href');
                         
                         //get current link
-                        
                         //if link is hash or nothing then disable
-                        
                         //get associated event
-                        
-                        
-                        
                         value +='<option style="'+style+'" value="'+link+'">'+indent+text+'</option>';
                         
                         if (A.next('ul').length){
@@ -253,20 +364,17 @@
                             var value = $this.val();
                             
                             if (value == '#'){
-                                //get index
                                 var index = $('option:selected',$this).index();
                                 //get original element and trigger click event
                                 ele.find('a').eq(index).trigger('click');    
                             } else {
                                 window.location = value;
                             }
-                            
                         });
                     });
                 }
                 
                 ele.addClass('hide-phone');
-                
                 if (obj.appendTo){
                     $(obj.appendTo).append(newSelect);
                 } else {
@@ -274,99 +382,35 @@
                 }
             }
         },
-        
-	//array of events that will run on screen resize event
+		
+        //array of events that will run on screen resize event
         events : [function(){
-	    //default resize acions
-	    //run fittext function on resize
+            //default resize acions
+            //run fittext function on resize
             $('.fittext').fittext();
         }],
         
         fireOnResize : function(){
-            
             //get current screen resolution
-            _SW.on.lastDevice = _SW.on._ini();
-            
+            _SW.on.lastDevice = _SW.on.ini();
             for (var i= 0; i < methods.events.length;i++){
-                var fun = methods.events[i];
-                fun();
+                var callback = methods.events[i];
+                if (callback && typeof callback === 'function') callback(_SW.on.lastDevice);
             }
-            
+            //save current device
             _SW.on.previousDevice = _SW.on.lastDevice;
         },
         
-        setEvent: function(func) {
-            if (typeof func !== 'function'){
-            throw 'Events must be of a function type';
+        setEvent: function(callback) {
+            if (typeof callback !== 'function'){
+				throw 'Event must be a function';
             } else {
-                methods.events.push(func);
+                methods.events.push(callback);
             }
         }
     };
-    
-    
-    var SW = function(){
-        _SW = this;
-    };
-    
-    SW.prototype.trigger = function(name,fn){
-        methods.trigger[name] = fn;
-        return fn;
-    };
-    
-    SW.prototype.containers = function(){
-        return _SW_containers;
-    };
-    
-    SW.prototype.on = {
-        _ini : function(){
-            var id = parseInt($('#SW_hidden_element').css('width'));
-            var screenType = _SW_devices[id];
-            return screenType;
-        },
-        resize : function(func){
-            methods.setEvent(func);
-        },
-        device : function(dev,func,func2){
-            var deviceType,Runfunc1,Runfunc2;
-            if (func2 && typeof func2 == 'function'){
-                Runfunc2 = func2;
-            } if (func && typeof func == 'function'){
-                Runfunc1 = func;
-                deviceType = dev;
-            } else {
-                Runfunc1 = dev;
-            }
-            
-            methods.setEvent(function(){
-                if (_SW.on.previousDevice !== _SW.on.lastDevice){
-                    if (deviceType){
-                        if (deviceType == _SW.on.lastDevice) {
-                            Runfunc1(_SW.on.lastDevice);
-                        } else if (Runfunc2 && deviceType !== _SW.on.lastDevice && _SW.on.previousDevice == deviceType) {
-                            Runfunc2(_SW.on.lastDevice);
-                        }
-                    } else {
-                        Runfunc1(_SW.on.lastDevice);
-                    }
-                }
-            });
-        },
-        mobile : function(func,func2){
-            _SW.on.device('mobile',func,func2);
-        },
-        tablet : function(func,func2){
-            _SW.on.device('tablet',func,func2);
-        },
-	screen : function(func,func2){
-            _SW.on.device('screen',func,func2);
-        },
-        lastDevice : '',
-        previousDevice : ''
-    };
-    
+	
     $.fn.fittext = function(customOptions){
-        
         return this.each(function() {
             var $this = $(this);
             
@@ -395,112 +439,11 @@
         });
     };
     
-    
     window.Sweefty = function (args) {
         return _SW || new SW(args);
     }
     
 }(jQuery));
-    
-    
-
-    Sweefty().on.mobile(function(){
-        
-        var height = $('.row.scroll > .column:first').outerHeight();
-        var sLeft = $(document).width();
-        
-        $('.row.scroll').css({
-            //overflow : 'hidden',
-            //height : height,
-            position : 'relative'
-        });
-        
-        $('.row.scroll > .column').on('swipeLeft',function(e){
-            var $this = $(this);
-            var next = $this.next('.column');
-            
-            if (next.length < 1){
-                //
-                $this.stop().animate({
-                    left: -(sLeft/2)
-                    },{
-                    duration : 200,
-                    complete : function(){
-                        $this.animate({
-                        left : 0
-                        },{
-                        duration : 250
-                        });
-                    }
-                });
-                
-            }
-            else {
-                next.css({left:sLeft});
-                $this.stop().animate({
-                    left: -sLeft
-                    },{
-                    duration : 250,
-                    complete : function(){
-                        $this.hide();
-                        next.show();
-                        next.stop().animate({
-                            left : 0
-                        },{
-                            duration : 250
-                        });
-                    }
-                });
-            }
-        }).bind('swipeRight',function(e){
-            
-            var $this = $(this);
-            var prev = $this.prev('.column');
-            
-            if (prev.length < 1){
-                $this.stop().animate({
-                    left: sLeft/2
-                    },{
-                    duration : 250,
-                    complete : function(){
-                        $this.animate({
-                            left : 0
-                        },{
-                            duration : 250
-                        });
-                    }
-                });
-            }
-            else {
-                prev.css({left:-sLeft});
-                $this.stop().animate({
-                    left: sLeft
-                    },{
-                    duration : 250,
-                    complete : function(){
-                        $this.hide();
-                        prev.show();
-                        prev.stop().animate({
-                            left : 0
-                        },{
-                            duration : 250
-                        });
-                    }
-                });
-            }
-        });
-        
-        //other devices
-        },function(){
-            $('.row.scroll').css({
-                height : 'auto',
-                overflow : 'none'
-            });
-            
-            $('.row.scroll .column').css({display:'block'});
-            $('.row.scroll > .column').unbind('swipeLeft').unbind('swipeRight');
-        }
-    );
 
 /*
  * jQuery Easing v1.3 - http://gsgd.co.uk/sandbox/jquery/easing/
@@ -512,7 +455,7 @@
  * 
  * Open source under the BSD License. 
  * 
- * Copyright © 2008 George McGinley Smith
+ * Copyright Â© 2008 George McGinley Smith
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 

@@ -1,64 +1,84 @@
+/*
+* moaModal
+* MIT Licensed
+* @author Mamod Mehyar
+* http://twitter.com/mamod
+* http://mamod.me
+* version : 1.0
+*/
+
 (function($){
+    "use strict";
+    var _SW_overlay
+      , _modalWrapper
+      , _SW_modal;
     
-    var SW = Sweefty();
-    var _SW_overlay,_modalWrapper,_SW_modal;
-    
+    //global options
     var modal_options =  {
-        speed : 250,
+        speed : 500,
         easing : 'linear',
         position : '0 auto',
-        animation: 'left bottom zoom',
-        on : 'click'
-    }
+        animation: 'none',
+        on : 'click',
+        escapeClose : true,
+        overlayColor : '#000000',
+        overlayOpacity : 0.7,
+        overlayClose : true
+    };
     
+    //initiate overlay
+    //and modal containers
     $(document).ready(function(){
-    //overlay div
-    _SW_overlay = $('<div></div>').css({
-        width : '100%',
-        height: $(document).height(),
-        position : 'fixed',
-        backgroundColor : '#000000',
-        overflow : 'hidden',
-        opacity : '0.5',
-        top : 0,
-        left: 0,
-        display : 'none',
-        zIndex : '999996'
-    }).appendTo('body');
-
-    _modalWrapper = $('<div></div>').css({
-        width : '100%',
-        height: $(document).height(),
-        position : 'absolute',
-        display: 'none',
-        overflow : 'hidden',
-        top : 0,
-        left: 0,
-        zIndex : '999998'
-    }).appendTo('body'),
+        //overlay div
+        _SW_overlay = $('<div></div>').css({
+            width : '100%',
+            height: $(document).height(),
+            position : 'fixed',
+            backgroundColor : '#000',
+            overflow : 'hidden',
+            opacity : 0.7,
+            top : 0,
+            left: 0,
+            display : 'none',
+            zIndex : '999996'
+        }).appendTo('body');
         
-    //modal container
-    _SW_modal = $('<div></div>').css({
-        position : 'relative',
-        width : '100%',
-        zIndex : '999997',
-        top : 0,
-        left : 0,
-        visibility : 'hidden'
-    }).appendTo(_modalWrapper);
+        //modal wrapper
+        _modalWrapper = $('<div></div>').css({
+            width : '100%',
+            height: $(document).height(),
+            position : 'absolute',
+            display: 'none',
+            overflow : 'hidden',
+            top : 0,
+            left: 0,
+            zIndex : '999998'
+        }).appendTo('body');
+        
+        //modal container
+        _SW_modal = $('<div></div>').css({
+            position : 'relative',
+            width : '100%',
+            zIndex : '999997',
+            top : 0,
+            left : 0,
+            visibility : 'hidden'
+        }).appendTo(_modalWrapper);
     });
     
-    
-    var _modal = SW.trigger('modal',function(ele,obj){
-        
+    var _modal = function (ele,obj) {
         obj = $.extend({},modal_options, obj);
         var target = $(obj.modal);
+        if (!target.length){
+            return;
+        }
         
-        var clone = _SW_modal;
+        obj.position = obj.position.replace( /(\d+)(\s|$)/g, "$1px" + "$2");
         
-        obj.position = obj.position.replace( /(\d+)(\s|$)/g, "$1px"+"$2");
-        var expand = obj.position.split(' ');
-        var eLeft = expand[1];
+        var clone   = _SW_modal
+          , expand  = obj.position.split(' ')
+          , eTop    = expand[0]
+          , eLeft   = expand[1];
         
         var css = {
             position: 'relative',
@@ -69,42 +89,58 @@
         };
         
         //fake screen resolution
-        var cc = target.clone();
+        var cc = target.clone()
+          , origWidth
+          , origHeight;
+        
         cc.appendTo('body').css({
-            maxWidth:window.screen.width,
-            maxHeight:window.screen.height
+            maxWidth : window.screen.width,
+            maxHeight : window.screen.height
         });
         
-        var origWidth,origHeight;
         origWidth = cc.outerWidth();
         origHeight = cc.outerHeight();
+        
         if (origHeight == 0){
             origHeight = '1%';
         }
+        
         cc.remove();
         
-        //parse animation options
-        var from = {};
-        var fromArr = obj.animation.split(' ');
+        var from    = {}
+          , fromArr = obj.animation.split(' ');
+        
         for (var x = 0; x < fromArr.length; x++){
             from[fromArr[x]] = true;
         }
         
-        _modalWrapper.click(function(e){
-            if (this == e.target || e.target == clone[0]){
-                target.trigger('close');
-            }
-            return false;
-        });
+        if (obj.overlayClose !== false){
+            _modalWrapper.click(function(e){
+                if (this == e.target || e.target == clone[0]){
+                    target.trigger('close.modal');
+                }
+            });
+        }
+        
+        if (obj.escapeClose) {
+            $(document).on('keydown.modal', function(event) {
+                if (event.which === 27) target.trigger('close');
+            });
+        }
         
         if (obj.close){
             $(obj.close).click(function(){
-                target.trigger('close');
+                target.trigger('close.modal');
                 return false;
             });
         }
         
-        ele.bind(obj.on,function(e){
+        ele.on(obj.on,function(e){
+            
+            _SW_overlay.css({
+                backgroundColor : obj.overlayColor,
+                opacity : obj.overlayOpacity
+            });
             
             var currentX,currentY;
             if (obj.on !== 'click'){
@@ -125,7 +161,6 @@
             
             //clear previous clone content
             clone.children(':first').hide().appendTo('body');
-            
             target.appendTo(clone);
             
             _modalWrapper.css({
@@ -134,9 +169,9 @@
                 display : 'block'
             });
             
-            var left = 0,top = $(window).scrollTop();
+            var left = 0,
+            top = $(window).scrollTop();
             target.css(css);
-            
             var secondEasing;
             
             if (from.top == true){
@@ -162,37 +197,29 @@
             if (from.zoom){
                 top = e.pageY;
                 left = e.pageX;
-                if (!top && !left){
-                    var p = ele.position();
-                    //left = _SW_cache.currentMousePos.x;
-                    //top = _SW_cache.currentMousePos.y;
-                    
-                    //left = currentX;
-                    //top =  currentY;
-                }
-                var marginLeft = target.css('marginLeft');
-                var value = parseFloat(marginLeft);
-                var prefix = marginLeft.replace(value,'');
                 
-                if ((value == 0 && eLeft !== '0px') || eLeft == 'auto'){
-                    value = clone.width()/2;
-                } else if (value !== 0 && !isNaN(value)){
-                    if (prefix == '%'){
-                        value = ($(document).width()*value)/100;
+                var marginLeft      = target.css('marginLeft')
+                  , leftValue       = parseFloat(marginLeft)
+                  , leftPrefix      = marginLeft.replace(leftValue,'');
+                
+                if (!eLeft || (leftValue == 0 && eLeft !== '0px') || eLeft == 'auto'){
+                    leftValue = clone.width()/2;
+                } else if (leftValue !== 0 && !isNaN(leftValue)){
+                    if (leftPrefix == '%'){
+                        leftValue = ($(document).width()*leftValue)/100;
                     }
                 }
-                left = left - value;
                 
-                //TOP
-                var marginTop = target.css('marginTop');
-                var value = parseFloat(marginTop);
-                var prefix = marginTop.replace(value,'');
+                left = left - leftValue;
+                var marginTop   = target.css('marginTop')
+                  , topValue    = parseFloat(marginTop)
+                  , topPrefix   = marginTop.replace(topValue,'');
                 
-                if (value !== 0 && !isNaN(value)){
-                    if (prefix == '%'){
-                        value = ((clone.innerHeight()*value)/100);
+                if (topValue !== 0 && !isNaN(topValue)){
+                    if (topPrefix == '%'){
+                        topValue = ((clone.innerHeight()*topValue)/100);
                     }   
-                    top = top - value;
+                    top = top - topValue;
                 }
                 
                 //since it's a zoom effect enable size effect too
@@ -200,11 +227,11 @@
                 from.height = true;
             }
             
+            //noob
             var closeFunction = function(){};
+            
             if (from.width == true || from.height == true){
-                
                 var cssSize = {};
-                
                 if (from.height == true){
                     cssSize.height = 0;
                 } if (from.width == true){
@@ -223,12 +250,12 @@
                         height: origHeight
                     },{
                         easing : obj.easing,
-                        duration : obj.speed
+                        duration : obj.speed,
+                        complete : function(){}
                     });
                 },setTimer);
                 
-                secondEasing = 'linear';
-                
+                //secondEasing = 'linear';
                 closeFunction = function(){
                     target.stop().animate({
                         width : 0,
@@ -242,74 +269,81 @@
                             });
                         }
                     });
-                };   
+                }; 
             }
             
-            target.on('close',function(){
+            target.on('close.modal',function(){
                 closeFunction();
                 clone.stop().animate({top : top, left : left, opacity : 0},{
                     duration : obj.speed,
                     easing: 'linear',
                     complete : function(){
-                        _SW_overlay.fadeOut(obj.speed,function(){
-                            clone.css({
-                                visibility : 'hidden',
-                                top:0,
-                                left:0
-                            });
-                            
-                            _modalWrapper.hide();
+                        _modalWrapper.css({
+                            top : 0,
+                            position : 'absolute'
                         });
                     }
                 });
-                target.off('close');
+                
+                _SW_overlay.fadeOut(obj.speed + 100,function(){
+                    clone.css({
+                        visibility : 'hidden',
+                        top:0,
+                        left:0
+                    });
+                    _modalWrapper.hide();
+                });
+                
+                target.off('close.modal');
             });
             
-            _SW_overlay.stop().fadeIn(obj.speed/2,function(){});
+            _SW_overlay.stop().fadeIn(obj.speed,function(){});
             
             clone.css({
                 top : top,
                 left: left,
                 opacity: 0,
                 visibility : 'visible'
-                }).stop().animate({
+            }).stop().animate({
                 opacity : 1,
                 top : $(window).scrollTop(),
                 left: 0
-                },{
+            },{
                 easing : secondEasing ? secondEasing : obj.easing,
                 duration : obj.speed,
                 complete: function(){
-                    setTimeout(function(){
-                        clone.css({
-                            //top : 0,
-                            //position : 'fixed'
-                        });
-                    },obj.speed);
+                    _modalWrapper.css({
+                        top : -$(window).scrollTop(),
+                        position : 'fixed'
+                    });
+                    if (obj.complete && typeof obj.complete === 'function'){
+                        obj.complete();
+                    }
                 }
             });
             return false;
         });
-        
-        
-    });
+    };
+    
+    //this is a trigger for sweefty framework if available
+    if (typeof Sweefty === 'function'){
+        Sweefty().trigger('modal',_modal);
+    }
     
     $.fn.modal = function(action,customOptions) {  
-	
-        if (!customOptions && typeof action == 'object'){
+        if (!customOptions && typeof action === 'object'){
             customOptions = action;
             action = undefined;
         }
         
         var options = $.extend({},modal_options, customOptions);
-        options.on = action || 'click';
-        options.modal = options.target;
         
+        options.modal = options.target;
         if (action == 'view'){
             options.modal = this;
-            
+            options.on = 'view.modal'
         } else if (action == 'close'){
-            this.trigger('close');
+            this.trigger('close.modal');
             return false;
         }
         
@@ -319,9 +353,9 @@
                 modal_options = options;
             } else {
                 _modal($this,options);
-                $this.trigger('view');
+                $this.trigger('view.modal');
             }
         });
     };
-    
+
 }(jQuery));

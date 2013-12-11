@@ -1,5 +1,4 @@
 (function($){
-    
     var SW = Sweefty();
     var _SW_tooltip,_SW_tooltipClass;
     
@@ -119,12 +118,10 @@
                 _SW_tooltip.stop().animate({opacity: 0,top:start1,left:start2},speed,obj.easing,function(){$(this).hide()});
             });
         }
-        
     });
     
     //jQuery custom functions
-    $.fn.tooltip = function(text,customOptions) {  
-	
+    $.fn.tooltip = function(text,customOptions) {
         var options = $.extend({},tooltip_options, customOptions);
         options.tooltip = text;
         
@@ -137,7 +134,5 @@
             }
         });
     };
-    
-    
-    
+
 }(jQuery));

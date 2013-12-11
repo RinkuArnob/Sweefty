@@ -1,0 +1,265 @@
+/*===========================================================================*/
+/*                                   UI COMPONENTS                           */
+/*===========================================================================*/
+
+/*Tooltip*/
+.tooltip {
+    opacity:1;
+    background-color:#222;
+    color:#fff;
+    padding:.5em;
+    line-height: 1em;
+    -webkit-border-radius: .2em;
+    -moz-border-radius: .2em;
+    border-radius: .2em;
+}
+
+.tooltip p {
+    font-size:12px;
+    opacity:1;
+}
+
+/*Modal*/
+.modal {
+    width:500px;
+    max-width : 90%;
+    height:250px;
+    max-height:50%;
+    background:#fff;
+    display:none;
+    z-index:9999999;
+    background: #fff;
+    padding: 10px;
+    border: 5px solid #000;
+    box-shadow: 0px 0px 20px #999;
+    -moz-box-shadow: 0px 0px 20px #999; /* Firefox */
+    -webkit-box-shadow: 0px 0px 20px #999; /* Safari, Chrome */
+    
+}
+
+/*Tabs*/
+.tabs {
+    width : 100%;
+    background:inherit;
+    overflow:hidden;
+}
+
+.tabs ul {
+    display:inline-block;
+    list-style:none;
+    width:100%;
+    border-bottom:1px solid #ccc;
+}
+
+.tabs ul li {
+    
+    float:left;
+    padding:10px;
+    border:1px solid #ccc;
+    border-bottom:none;
+    margin:0 5px -1px 5px;
+    cursor:pointer;
+    
+}
+
+.tabs ul li.active {
+    background:#efefef;
+    /*border-bottom:none;*/
+}
+
+.tabs > div {
+    padding:10px;
+}
+
+/*NAV MENU
+Author: Craig Erskine
+Description: Dynamic Menu System - Horizontal/Vertical
+*/
+
+ul.nav {
+    margin: 0; padding: 0;
+    list-style: none;
+    position: relative;
+}
+
+ul.nav ul {
+    min-width: 200px; /* Sub Menu Width */
+    margin: 0;
+    list-style: none;
+    display: none;
+    position: absolute;
+    top: 100%;
+}
+
+ul.nav ul ul,ul.nav ul ul ul {
+    top: 0;
+    left: 100%;
+    position:absolute;
+}
+
+ul.nav li {
+    float: left;
+    display: inline;
+    position: relative;
+}
+
+ul.nav ul li {
+    width: 100%;
+    display: block;
+}
+
+
+ul.nav.right ul {
+    right:0;
+}
+
+ul.nav.right ul ul,ul.nav.right ul ul ul {
+    left:-100%;
+    right: 100%;
+}
+
+/* Root Menu */
+
+/*Adding right chvron icon to lists with nested drop down lists*/
+/*\0000a0 is a space HTML entity = so we have three spaces befor right chevron icon*/
+ul.nav .dir:before {
+    font-family: 'FontAwesome';
+    margin-left:10px;
+    content: "\f054";
+}
+
+ul.nav a:hover .dir:before {
+    color: rgba(255, 255, 255, .5);
+}
+
+ul.nav a {
+    
+    padding: 8px;
+    float: left;
+    display: block;
+    background: rgba(0, 0, 0, .3);
+    border: 1px solid rgba(255, 255, 255, .5);
+    color: rgba(255, 255, 255, .6);
+    text-decoration: none;
+    height: 1%;
+    margin:1px;
+}
+
+/* Root Menu Hover Persistence */
+ul.nav a:hover,
+ul.nav li:hover a,
+ul.nav li.iehover a {
+    background: rgba(0, 0, 0, .5);
+    color: #FFF;
+}
+
+/* 2nd Menu */
+ul.nav li:hover li a,
+ul.nav li.iehover li a {
+    float: none;
+    background: rgba(0, 0, 0, .5);
+}
+
+/* 2nd Menu Hover Persistence */
+ul.nav li:hover li a:hover,
+ul.nav li:hover li:hover a,
+ul.nav li.iehover li a:hover,
+ul.nav li.iehover li.iehover a {
+    background: rgba(0, 0, 0, .7);
+}
+
+/* 3rd Menu */
+ul.nav li:hover li:hover li a,
+ul.nav li.iehover li.iehover li a {
+    background: rgba(0, 0, 0, .7);
+}
+
+/* 3rd Menu Hover Persistence */
+ul.nav li:hover li:hover li a:hover,
+ul.nav li:hover li:hover li:hover a,
+ul.nav li.iehover li.iehover li a:hover,
+ul.nav li.iehover li.iehover li.iehover a {
+    background: rgba(0, 0, 0, .9);
+}
+
+/* Hover Function - Do Not Move */
+ul.nav li:hover ul ul,
+ul.nav li:hover ul ul ul,
+ul.nav li.iehover ul ul,
+ul.nav li.iehover ul ul ul {
+    display: none;
+}
+
+ul.nav li:hover ul,
+ul.nav ul li:hover ul,
+ul.nav ul ul li:hover ul,
+ul.nav li.iehover ul,
+ul.nav ul li.iehover ul,
+ul.nav ul ul li.iehover ul {
+    display: block;
+}
+
+/*Small device select menu*/
+select.selectMenu {
+    min-width:200px;
+    width:100%;
+    padding:10px;
+    border:none;
+    font-size:16px;
+}
+
+/*PRETTY SELECT*/
+.prettySelect {
+    position:relative;
+    width:100%;
+    margin:0 auto;
+    /*overflow:hidden;*/
+}
+
+div.prettyMenu {
+    position:absolute;
+    bottom:0;
+    left:0;
+    width:100%;
+    min-width:50px;
+    background:#ccc;
+    background:rgba(0,0,0,.3);
+    cursor:default;
+    padding:8px;
+    z-index:1;
+    -webkit-border-radius: .2em;
+    -moz-border-radius: 0.2em;
+    border-radius: 0.2em;
+    color:#fff;
+}
+
+div.prettyMenu span {
+    position:relative;
+    padding:10px;
+    margin:0;
+}
+
+div.prettyMenu span.prettyTitle {
+    float:left;
+    overflow:hidden;
+    white-space:nowrap;
+    margin-left:-40px;
+    padding-left:50px;
+    width:100%;
+}
+
+div.prettyMenu span.pointer {
+    float:right;
+    background:rgba(0,0,0,.2);
+}
+
+div.prettyMenu span.pointer:before {
+    font-family: 'FontAwesome';
+    content: "\f078";
+}
+
+.prettySelect select.selectMenu {
+    position:relative;
+    z-index:10;
+    padding:15px;
+}
