@@ -1,10 +1,10 @@
 (function($){
     
-	"use strict";
-	
-    var _SW_equalizeDivs	= false
-	  , _SW_cache			= {}
-	  , _SW;
+    "use strict";
+    
+    var _SW_equalizeDivs    = false
+      , _SW_cache           = {}
+      , _SW;
     
     var _SW_devices = {
         1 : 'screen',
@@ -20,11 +20,11 @@
             5 : 'Mobile Portrait'
         }
     }
-	
-	/**
-	 * @constructor
-	 */
-	var SW = function(){
+    
+    /**
+     * @constructor
+     */
+    var SW = function(){
         _SW = this;
     };
     
@@ -33,23 +33,23 @@
         methods.trigger[name] = fn;
         return fn;
     };
-	
+    
     SW.prototype.on = {
         ini : function(){
             var id = parseInt($('#SW_hidden_element').css('width'));
             var screenType = _SW_devices[id];
             return screenType;
         },
-		//Fire callback function on resize
+        //Fire callback function on resize
         resize : function(callback){
             methods.setEvent(callback);
         },
-		//fire on device change
+        //fire on device change
         device : function(dev,func,func2){
             var deviceType
-			  , Runfunc1
-			  , Runfunc2;
-			
+              , Runfunc1
+              , Runfunc2;
+            
             if (func2 && typeof func2 == 'function'){
                 Runfunc2 = func2;
             } if (func && typeof func == 'function'){
@@ -65,7 +65,7 @@
                         if (deviceType == _SW.on.lastDevice) {
                             Runfunc1(_SW.on.lastDevice);
                         } else if (Runfunc2 && deviceType !== _SW.on.lastDevice
-											&& _SW.on.previousDevice == deviceType) {
+                                            && _SW.on.previousDevice == deviceType) {
                             Runfunc2(_SW.on.lastDevice);
                         }
                     } else {
@@ -74,9 +74,9 @@
                 }
             });
         },
-		
-		//Fire callback1 on spicific Device
-		//Fire callback2 on everything else
+        
+        //Fire callback1 on spicific Device
+        //Fire callback2 on everything else
         mobile : function(callback1,callback2){
             _SW.on.device('mobile',callback1,callback2);
         },
@@ -101,62 +101,62 @@
     var modules = {};
     var parent_module;
     var require = SW.prototype.require = function(id,callback){
-    	//if callback passed we expect this to be async require
-    	var async = typeof callback === 'function' ? true : false;
-    	if ($.isArray(id)){
-    	    var ret = {};
-    	    $(id).each(function(i,ix){
-				var ex = require(ix,callback);
-				ret = $.extend({}, ret, ex);
-    	    });
-    	    return ret;
-    	}
-    	
-    	//resolve id
-    	var url = SW_SELF_URL + id;
-    	if ( modules[id] && modules[id].loaded === true ){
-    	    console.log( id + ' loaded from cache');
-    	    return modules[id].exports;
-    	}
-    	
-    	modules[id] = {
-    	    id : id,
-    	    parent : parent_module,
-    	    exports : {},
-    	    loaded : false
-    	};
-    	
-    	parent_module = modules[id];
-    	window.exports = modules[id].exports;
-		
-		var loadScript = function (url, cb) {
-    	    
-			cb = async ? cb : function(){}
-			if (!async) modules[id].loaded = true;
-			
-    	    jQuery.ajax({
-				url: url,
-				dataType: 'script',
-				cache: false,
-				success: function(){
-					if (async) {
-					   modules[id].loaded = true;
-					}
-					
-					//switch require back to the parent
-					if (modules[id].parent){
-					   window.exports = modules[id].parent.exports;
-					}
-					
-					parent_module = modules[id].parent;
-					cb(modules[id].exports);
-				},
-				async: async
-    	    });
-    	}
-		
-    	loadScript(url,callback);
-    	return modules[id].exports;
+        //if callback passed we expect this to be async require
+        var async = typeof callback === 'function' ? true : false;
+        if ($.isArray(id)){
+            var ret = {};
+            $(id).each(function(i,ix){
+                var ex = require(ix,callback);
+                ret = $.extend({}, ret, ex);
+            });
+            return ret;
+        }
+        
+        //resolve id
+        var url = SW_SELF_URL + id;
+        if ( modules[id] && modules[id].loaded === true ){
+            console.log( id + ' loaded from cache');
+            return modules[id].exports;
+        }
+        
+        modules[id] = {
+            id : id,
+            parent : parent_module,
+            exports : {},
+            loaded : false
+        };
+        
+        parent_module = modules[id];
+        window.exports = modules[id].exports;
+        
+        var loadScript = function (url, cb) {
+            
+            cb = async ? cb : function(){}
+            if (!async) modules[id].loaded = true;
+            
+            jQuery.ajax({
+                url: url,
+                dataType: 'script',
+                cache: false,
+                success: function(){
+                    if (async) {
+                       modules[id].loaded = true;
+                    }
+                    
+                    //switch require back to the parent
+                    if (modules[id].parent){
+                       window.exports = modules[id].parent.exports;
+                    }
+                    
+                    parent_module = modules[id].parent;
+                    cb(modules[id].exports);
+                },
+                async: async
+            });
+        }
+        
+        loadScript(url,callback);
+        return modules[id].exports;
     };
     
     window.require = require;
@@ -167,7 +167,7 @@
         if (resizeTimer) clearTimeout(resizeTimer);
         resizeTimer = setTimeout(methods.fireOnResize, 250);
     });
-	
+    
     //inatiate after document load
     $(document).ready(function() {
         //initiate
@@ -175,8 +175,8 @@
             _SW = Sweefty();
         }
         
-		//TODO - Do We need this?
-		//quick test if our browser support floating point margins
+        //TODO - Do We need this?
+        //quick test if our browser support floating point margins
         var div = $('<div id="SW_hidden_element" style="margin-left:50.6%"></div>');
         $('body').append(div);
         var num = parseFloat(div.css('margin-left'));
@@ -189,7 +189,7 @@
         //run resize event
         setTimeout(methods.fireOnResize,250);
         
-		//TODO Change this to something unique
+        //TODO Change this to something unique
         //tabs
         $('.tabs').each(function(){
             var tabs = $(this);
@@ -217,17 +217,17 @@
             });
         });
         
-		//TODO change class name to something unique
+        //TODO change class name to something unique
         //nav menu fix for IE 6 & 7
         $("ul.nav li").hover( function() {
             $(this).addClass("iehover");
         },function() {
             $(this).removeClass("iehover");
         });
-		
+        
         $('ul.nav > li').each(function(){
-            var $this	= $(this)
-			  , As		= $this.children('a');
+            var $this   = $(this)
+              , As      = $this.children('a');
             
             if (As.next('ul').length){
                 As.append('<span class="dir"></span>');
@@ -321,10 +321,10 @@
                     }
                     
                     element.children('li').each(function(){
-                        var $this	= $(this)
-						  , A		= $this.children('a')
-						  , text	= A.text()
-						  , link	= A.attr('href');
+                        var $this   = $(this)
+                          , A       = $this.children('a')
+                          , text    = A.text()
+                          , link    = A.attr('href');
                         
                         //get current link
                         //if link is hash or nothing then disable
@@ -382,7 +382,7 @@
                 }
             }
         },
-		
+        
         //array of events that will run on screen resize event
         events : [function(){
             //default resize acions
@@ -403,13 +403,13 @@
         
         setEvent: function(callback) {
             if (typeof callback !== 'function'){
-				throw 'Event must be a function';
+                throw 'Event must be a function';
             } else {
                 methods.events.push(callback);
             }
         }
     };
-	
+    
     $.fn.fittext = function(customOptions){
         return this.each(function() {
             var $this = $(this);
@@ -487,133 +487,133 @@ jQuery.easing['jswing'] = jQuery.easing['swing'];
 
 jQuery.extend( jQuery.easing,
 {
-	def: 'easeOutQuad',
-	swing: function (x, t, b, c, d) {
-		//alert(jQuery.easing.default);
-		return jQuery.easing[jQuery.easing.def](x, t, b, c, d);
-	},
-	easeInQuad: function (x, t, b, c, d) {
-		return c*(t/=d)*t + b;
-	},
-	easeOutQuad: function (x, t, b, c, d) {
-		return -c *(t/=d)*(t-2) + b;
-	},
-	easeInOutQuad: function (x, t, b, c, d) {
-		if ((t/=d/2) < 1) return c/2*t*t + b;
-		return -c/2 * ((--t)*(t-2) - 1) + b;
-	},
-	easeInCubic: function (x, t, b, c, d) {
-		return c*(t/=d)*t*t + b;
-	},
-	easeOutCubic: function (x, t, b, c, d) {
-		return c*((t=t/d-1)*t*t + 1) + b;
-	},
-	easeInOutCubic: function (x, t, b, c, d) {
-		if ((t/=d/2) < 1) return c/2*t*t*t + b;
-		return c/2*((t-=2)*t*t + 2) + b;
-	},
-	easeInQuart: function (x, t, b, c, d) {
-		return c*(t/=d)*t*t*t + b;
-	},
-	easeOutQuart: function (x, t, b, c, d) {
-		return -c * ((t=t/d-1)*t*t*t - 1) + b;
-	},
-	easeInOutQuart: function (x, t, b, c, d) {
-		if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
-		return -c/2 * ((t-=2)*t*t*t - 2) + b;
-	},
-	easeInQuint: function (x, t, b, c, d) {
-		return c*(t/=d)*t*t*t*t + b;
-	},
-	easeOutQuint: function (x, t, b, c, d) {
-		return c*((t=t/d-1)*t*t*t*t + 1) + b;
-	},
-	easeInOutQuint: function (x, t, b, c, d) {
-		if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
-		return c/2*((t-=2)*t*t*t*t + 2) + b;
-	},
-	easeInSine: function (x, t, b, c, d) {
-		return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
-	},
-	easeOutSine: function (x, t, b, c, d) {
-		return c * Math.sin(t/d * (Math.PI/2)) + b;
-	},
-	easeInOutSine: function (x, t, b, c, d) {
-		return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
-	},
-	easeInExpo: function (x, t, b, c, d) {
-		return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
-	},
-	easeOutExpo: function (x, t, b, c, d) {
-		return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
-	},
-	easeInOutExpo: function (x, t, b, c, d) {
-		if (t==0) return b;
-		if (t==d) return b+c;
-		if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
-		return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
-	},
-	easeInCirc: function (x, t, b, c, d) {
-		return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b;
-	},
-	easeOutCirc: function (x, t, b, c, d) {
-		return c * Math.sqrt(1 - (t=t/d-1)*t) + b;
-	},
-	easeInOutCirc: function (x, t, b, c, d) {
-		if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
-		return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b;
-	},
-	easeInElastic: function (x, t, b, c, d) {
-		var s=1.70158;var p=0;var a=c;
-		if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
-		if (a < Math.abs(c)) { a=c; var s=p/4; }
-		else var s = p/(2*Math.PI) * Math.asin (c/a);
-		return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
-	},
-	easeOutElastic: function (x, t, b, c, d) {
-		var s=1.70158;var p=0;var a=c;
-		if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
-		if (a < Math.abs(c)) { a=c; var s=p/4; }
-		else var s = p/(2*Math.PI) * Math.asin (c/a);
-		return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
-	},
-	easeInOutElastic: function (x, t, b, c, d) {
-		var s=1.70158;var p=0;var a=c;
-		if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);
-		if (a < Math.abs(c)) { a=c; var s=p/4; }
-		else var s = p/(2*Math.PI) * Math.asin (c/a);
-		if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
-		return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
-	},
-	easeInBack: function (x, t, b, c, d, s) {
-		if (s == undefined) s = 1.70158;
-		return c*(t/=d)*t*((s+1)*t - s) + b;
-	},
-	easeOutBack: function (x, t, b, c, d, s) {
-		if (s == undefined) s = 1.70158;
-		return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
-	},
-	easeInOutBack: function (x, t, b, c, d, s) {
-		if (s == undefined) s = 1.70158; 
-		if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
-		return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
-	},
-	easeInBounce: function (x, t, b, c, d) {
-		return c - jQuery.easing.easeOutBounce (x, d-t, 0, c, d) + b;
-	},
-	easeOutBounce: function (x, t, b, c, d) {
-		if ((t/=d) < (1/2.75)) {
-			return c*(7.5625*t*t) + b;
-		} else if (t < (2/2.75)) {
-			return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
-		} else if (t < (2.5/2.75)) {
-			return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
-		} else {
-			return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
-		}
-	},
-	easeInOutBounce: function (x, t, b, c, d) {
-		if (t < d/2) return jQuery.easing.easeInBounce (x, t*2, 0, c, d) * .5 + b;
-		return jQuery.easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
-	}
+    def: 'easeOutQuad',
+    swing: function (x, t, b, c, d) {
+        //alert(jQuery.easing.default);
+        return jQuery.easing[jQuery.easing.def](x, t, b, c, d);
+    },
+    easeInQuad: function (x, t, b, c, d) {
+        return c*(t/=d)*t + b;
+    },
+    easeOutQuad: function (x, t, b, c, d) {
+        return -c *(t/=d)*(t-2) + b;
+    },
+    easeInOutQuad: function (x, t, b, c, d) {
+        if ((t/=d/2) < 1) return c/2*t*t + b;
+        return -c/2 * ((--t)*(t-2) - 1) + b;
+    },
+    easeInCubic: function (x, t, b, c, d) {
+        return c*(t/=d)*t*t + b;
+    },
+    easeOutCubic: function (x, t, b, c, d) {
+        return c*((t=t/d-1)*t*t + 1) + b;
+    },
+    easeInOutCubic: function (x, t, b, c, d) {
+        if ((t/=d/2) < 1) return c/2*t*t*t + b;
+        return c/2*((t-=2)*t*t + 2) + b;
+    },
+    easeInQuart: function (x, t, b, c, d) {
+        return c*(t/=d)*t*t*t + b;
+    },
+    easeOutQuart: function (x, t, b, c, d) {
+        return -c * ((t=t/d-1)*t*t*t - 1) + b;
+    },
+    easeInOutQuart: function (x, t, b, c, d) {
+        if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
+        return -c/2 * ((t-=2)*t*t*t - 2) + b;
+    },
+    easeInQuint: function (x, t, b, c, d) {
+        return c*(t/=d)*t*t*t*t + b;
+    },
+    easeOutQuint: function (x, t, b, c, d) {
+        return c*((t=t/d-1)*t*t*t*t + 1) + b;
+    },
+    easeInOutQuint: function (x, t, b, c, d) {
+        if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
+        return c/2*((t-=2)*t*t*t*t + 2) + b;
+    },
+    easeInSine: function (x, t, b, c, d) {
+        return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
+    },
+    easeOutSine: function (x, t, b, c, d) {
+        return c * Math.sin(t/d * (Math.PI/2)) + b;
+    },
+    easeInOutSine: function (x, t, b, c, d) {
+        return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
+    },
+    easeInExpo: function (x, t, b, c, d) {
+        return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
+    },
+    easeOutExpo: function (x, t, b, c, d) {
+        return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
+    },
+    easeInOutExpo: function (x, t, b, c, d) {
+        if (t==0) return b;
+        if (t==d) return b+c;
+        if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
+        return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
+    },
+    easeInCirc: function (x, t, b, c, d) {
+        return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b;
+    },
+    easeOutCirc: function (x, t, b, c, d) {
+        return c * Math.sqrt(1 - (t=t/d-1)*t) + b;
+    },
+    easeInOutCirc: function (x, t, b, c, d) {
+        if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
+        return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b;
+    },
+    easeInElastic: function (x, t, b, c, d) {
+        var s=1.70158;var p=0;var a=c;
+        if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+        if (a < Math.abs(c)) { a=c; var s=p/4; }
+        else var s = p/(2*Math.PI) * Math.asin (c/a);
+        return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+    },
+    easeOutElastic: function (x, t, b, c, d) {
+        var s=1.70158;var p=0;var a=c;
+        if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+        if (a < Math.abs(c)) { a=c; var s=p/4; }
+        else var s = p/(2*Math.PI) * Math.asin (c/a);
+        return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+    },
+    easeInOutElastic: function (x, t, b, c, d) {
+        var s=1.70158;var p=0;var a=c;
+        if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);
+        if (a < Math.abs(c)) { a=c; var s=p/4; }
+        else var s = p/(2*Math.PI) * Math.asin (c/a);
+        if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+        return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
+    },
+    easeInBack: function (x, t, b, c, d, s) {
+        if (s == undefined) s = 1.70158;
+        return c*(t/=d)*t*((s+1)*t - s) + b;
+    },
+    easeOutBack: function (x, t, b, c, d, s) {
+        if (s == undefined) s = 1.70158;
+        return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+    },
+    easeInOutBack: function (x, t, b, c, d, s) {
+        if (s == undefined) s = 1.70158; 
+        if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
+        return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+    },
+    easeInBounce: function (x, t, b, c, d) {
+        return c - jQuery.easing.easeOutBounce (x, d-t, 0, c, d) + b;
+    },
+    easeOutBounce: function (x, t, b, c, d) {
+        if ((t/=d) < (1/2.75)) {
+            return c*(7.5625*t*t) + b;
+        } else if (t < (2/2.75)) {
+            return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
+        } else if (t < (2.5/2.75)) {
+            return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
+        } else {
+            return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
+        }
+    },
+    easeInOutBounce: function (x, t, b, c, d) {
+        if (t < d/2) return jQuery.easing.easeInBounce (x, t*2, 0, c, d) * .5 + b;
+        return jQuery.easing.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
+    }
 });
